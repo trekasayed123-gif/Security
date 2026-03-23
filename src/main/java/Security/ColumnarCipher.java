@@ -1,11 +1,46 @@
 package Security;
+
 import java.util.*;
 
 public class ColumnarCipher {
 
     public List<Integer> analyse(String plainText, String cipherText) {
         // TODO: Analyze the plainText and cipherText to determine the key(s)
+        plainText = plainText.toLowerCase();
+        cipherText = cipherText.toLowerCase();
+        for (int kSize = 2; kSize <= plainText.length(); kSize++) {
+            List<Integer> key = new ArrayList<>();
+            for (int i = 1; i <= kSize; i++) {
+                key.add(i);
+            }
+            while (true) {
+                String res = encrypt(plainText, key);
+                if (res.equals(cipherText)) {
+                    return new ArrayList<>(key);
+                }
+                int i = kSize - 2;
+                while (i >= 0 && key.get(i) >= key.get(i + 1))
+                    i--;
+                if (i < 0)
+                    break;
 
+                int j = kSize - 1;
+                while (key.get(j) <= key.get(i))
+                    j--;
+                int temp = key.get(i);
+                key.set(i, key.get(j));
+                key.set(j, temp);
+
+                int left = i + 1, right = kSize - 1;
+                while (left < right) {
+                    int t = key.get(left);
+                    key.set(left, key.get(right));
+                    key.set(right, t);
+                    left++;
+                    right--;
+                }
+            }
+        }
         return new ArrayList<>(); // Placeholder return
     }
 
@@ -23,7 +58,8 @@ public class ColumnarCipher {
         int remainingCols = cipherSize % key.size();
         for (int i = 0; i < key.size(); i++) {
             for (int j = 0; j < rows; j++) {
-                if (remainingCols != 0 && j == rows - 1 && keyMap.get(i) >= remainingCols) continue;
+                if (remainingCols != 0 && j == rows - 1 && keyMap.get(i) >= remainingCols)
+                    continue;
                 grid[j][keyMap.get(i)] = cipherText.charAt(count++);
             }
         }

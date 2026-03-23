@@ -141,11 +141,56 @@ public class HillCipher {
 
     public List<Integer> decrypt(List<Integer> cipherText, List<Integer> key) {
         // Students should complete this part
-        return null;
+
+        int n = findMatrixSize(key.size());
+
+        if (n == -1)
+            throw new InvalidAnalysisException();
+
+        List<Integer> inverseKey = invertMatrix(key, n);
+
+        List<Integer> plainText = new ArrayList<>();
+
+        for (int i = 0; i < cipherText.size(); i += n) {
+
+            for (int row = 0; row < n; row++) {
+
+                int sum = 0;
+
+                for (int col = 0; col < n; col++) {
+                    sum += inverseKey.get(row * n + col) *
+                            cipherText.get(i + col);
+                }
+
+                plainText.add(mod26(sum));
+            }
+        }
+
+        return plainText;
     }
 
     public List<Integer> analyse3By3Key(List<Integer> plainText, List<Integer> cipherText) {
         // Students should complete this part
+        int n = 3;
+        for (int start = 0; start + 9 <= plainText.size(); start += 3) {
+
+            List<Integer> P = new ArrayList<>();
+            List<Integer> C = new ArrayList<>();
+            for (int col = 0; col < n; col++) {
+                for (int row = 0; row < n; row++) {
+
+                    P.add(plainText.get(start + col + row * n));
+                    C.add(cipherText.get(start + col + row * n));
+
+                }
+            }
+
+            try {
+                List<Integer> P_inv = invertMatrix(P, n);
+                return multiplyMatricesMod26(C, P_inv, n);
+            } catch (InvalidAnalysisException e) {}
+        }
+
         throw new InvalidAnalysisException();
     }
 }

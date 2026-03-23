@@ -98,7 +98,48 @@ public class MonoalphabeticCipher {
         /// Q	0.11
         /// Z	0.09
     public String analyseUsingCharFrequency(String cipher) {
-        // Students should complete this part
-        return null;
+        cipher = cipher.toUpperCase();
+
+        // English letter frequencies for scoring
+        double[] englishFreq = {
+                8.167, 1.492, 2.782, 4.253, 12.702, 2.228, 2.015, 6.094,
+                6.966, 0.153, 0.772, 4.025, 2.406, 6.749, 7.507, 1.929,
+                0.095, 5.987, 6.327, 9.056, 2.758, 0.978, 2.360, 0.150,
+                1.974, 0.074
+        };
+
+        int[] freq = new int[26];
+        int total = 0;
+        for (char c : cipher.toCharArray()) {
+            if (c >= 'A' && c <= 'Z') {
+                freq[c - 'A']++;
+                total++;
+            }
+        }
+
+        int bestShift = 0;
+        double bestScore = Double.NEGATIVE_INFINITY;
+
+        for (int shift = 0; shift < 26; shift++) {
+            double score = 0;
+            for (int i = 0; i < 26; i++) {
+                int plainIndex = (i - shift + 26) % 26;
+                score += (freq[i] * 1.0 / total) * englishFreq[plainIndex];
+            }
+            if (score > bestScore) {
+                bestScore = score;
+                bestShift = shift;
+            }
+        }
+
+        String result = "";
+        for (char c : cipher.toCharArray()) {
+            if (c >= 'A' && c <= 'Z') {
+                result += (char) (((c - 'A' - bestShift + 26) % 26) + 'A');
+            } else {
+                result += c;
+            }
+        }
+        return result.toLowerCase();
     }
 }
